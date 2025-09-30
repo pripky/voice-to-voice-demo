@@ -33,6 +33,7 @@ if wav_audio_data is not None:
 
         # Convert float32 -> int16
         audio_int16 = (audio * 32767).astype(np.int16)
+        audio_int16_2d = np.expand_dims(audio_int16, axis=0)
 
         # Create MP3 buffer using av
         mp3_buffer = BytesIO()
@@ -41,7 +42,7 @@ if wav_audio_data is not None:
         stream.layout = 'mono'
 
         # Each frame: convert numpy to bytes
-        frame = av.AudioFrame.from_ndarray(audio_int16, format='s16', layout='mono')
+        frame = av.AudioFrame.from_ndarray(audio_int16_2d, format='s16', layout='mono')
         for packet in stream.encode(frame):
             container.mux(packet)
         for packet in stream.encode():
