@@ -1,0 +1,9 @@
+streamlit
+streamlit-webrtc
+openai
+groq
+gtts
+soundfile
+av
+numpy
+pydub
