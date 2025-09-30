@@ -8,6 +8,7 @@ import av
 import soundfile as sf
 import numpy as np
 from st_audiorec import st_audiorec
+import tempfile
 
 from openai import OpenAI
 openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -24,40 +25,21 @@ wav_audio_data = st_audiorec()
 if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
-        # wav_audio_data comes from st_audiorec()
-        audio, sr = sf.read(BytesIO(wav_audio_data))
+            # Save WAV to temporary file
+        with tempfile.NamedTemporaryFile(suffix=".wav") as tmp_wav:
+            tmp_wav.write(wav_audio_data)
+            tmp_wav.flush()
 
-        # Convert to mono
-        if audio.ndim > 1:
-            audio = np.mean(audio, axis=1)
+            # Convert to MP3
+            audio = gTTS(text="dummy", lang="en") 
 
-        # Convert float32 -> int16
-        audio_int16 = (audio * 32767).astype(np.int16)
-        audio_int16_2d = np.expand_dims(audio_int16, axis=0)
-
-        # Create MP3 buffer using av
-        mp3_buffer = BytesIO()
-        container = av.open(mp3_buffer, mode='w', format='mp3')
-        stream = container.add_stream('mp3', rate=sr)
-        stream.layout = 'mono'
-
-        # Each frame: convert numpy to bytes
-        frame = av.AudioFrame.from_ndarray(audio_int16_2d, format='s16', layout='mono')
-        for packet in stream.encode(frame):
-            container.mux(packet)
-        for packet in stream.encode():
-            container.mux(packet)
-
-        container.close()
-        mp3_buffer.seek(0)
-
-        # Whisper transcription
-        translation = openai_client.audio.translations.create(
-            model="whisper-1",
-            file=mp3_buffer
-        )
-        user_text = translation.text
-        st.write("You said:", user_text)
+            # Send to Whisper
+            with open(tmp_wav.name, "rb") as f:
+                translation = openai_client.audio.translations.create(
+                    model="whisper-1",
+                    file=f
+                )
+            st.write("You said:", user_text)
 
         #Groq response
         completion = groq_client.chat.completions.create(
