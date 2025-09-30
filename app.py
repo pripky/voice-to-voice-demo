@@ -32,7 +32,7 @@ if wav_audio_data is not None:
     
         # Save properly to a new buffer
         wav_buffer = BytesIO()
-        sf.write(wav_buffer, audio, sr, format='WAV')
+        sf.write(wav_buffer, audio, sr, format='WAV', subtype='PCM_16')
         wav_buffer.seek(0)
 
         # Whisper transcription
