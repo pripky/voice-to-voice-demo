@@ -8,8 +8,6 @@ import av
 import soundfile as sf
 import numpy as np
 from st_audiorec import st_audiorec
-from pydub import AudioSegment
-from io import BytesIO
 
 from openai import OpenAI
 openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
