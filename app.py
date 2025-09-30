@@ -19,6 +19,14 @@ st.title("Live Voice-to-Voice Demo")
 
 st.info("Click the microphone, speak, then click stop. The transcript and response will appear immediately.")
 
+class VoiceProcessor(AudioProcessorBase):
+    def __init__(self):
+        self.audio_frames = []
+
+    def recv(self, frame: av.AudioFrame) -> av.AudioFrame:
+        self.audio_frames.append(frame)
+        return frame
+
 audio_data = np.hstack([f.to_ndarray().T for f in audio_frames])
 
 wav_buffer = BytesIO()
