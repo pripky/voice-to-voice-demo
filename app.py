@@ -21,6 +21,9 @@ st.info("Click the microphone, speak, then click stop. The transcript and respon
 
 wav_audio_data = st_audiorec()
 
+if wav_buffer.getbuffer().nbytes == 0:
+    st.error("Audio buffer is empty!")
+
 if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
