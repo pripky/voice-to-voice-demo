@@ -39,6 +39,7 @@ if wav_audio_data is not None:
                     model="whisper-1",
                     file=f
                 )
+            user_text = translation.text
             st.write("You said:", user_text)
 
         #Groq response
