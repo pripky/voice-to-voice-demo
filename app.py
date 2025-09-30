@@ -8,7 +8,7 @@ import av
 import soundfile as sf
 import numpy as np
 from st_audiorec import st_audiorec
-from scipy.io import wavfile
+from pydub import AudioSegment
 
 from openai import OpenAI
 openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -25,23 +25,21 @@ wav_audio_data = st_audiorec()
 if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
-        audio, sr = sf.read(BytesIO(wav_audio_data))
+        # wav_audio_data comes from st_audiorec()
+        audio_segment = AudioSegment.from_file(BytesIO(wav_audio_data), format="wav")
 
-        if audio.ndim > 1:
-            audio = np.mean(audio, axis=1)
-        audio_int16 = (audio * 32767).astype(np.int16)
+        # Convert to mono (optional)
+        audio_segment = audio_segment.set_channels(1)
 
-        wav_buffer = BytesIO()
-        wavfile.write(wav_buffer, sr, audio_int16)
-        wav_buffer.seek(0)
-        
-        if wav_buffer.getbuffer().nbytes == 0:
-            st.error("Audio buffer is empty!")
+        # Export as MP3
+        mp3_buffer = BytesIO()
+        audio_segment.export(mp3_buffer, format="mp3")
+        mp3_buffer.seek(0)
 
         # Whisper transcription
         translation = openai_client.audio.translations.create(
             model="whisper-1",
-            file=wav_buffer
+            file=mp3_buffer
         )
         user_text = translation.text
         st.write("You said:", user_text)
