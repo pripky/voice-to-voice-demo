@@ -1,5 +1,5 @@
 streamlit
-streamlit-webrtc
+st.audiorec
 openai
 groq
 gtts
