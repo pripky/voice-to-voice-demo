@@ -25,8 +25,12 @@ if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
         audio, sr = sf.read(BytesIO(wav_audio_data))
+    
+        # Convert to mono if stereo
         if audio.ndim > 1:
-            audio = np.mean(audio, axis=1)  # convert to mono
+            audio = np.mean(audio, axis=1)
+    
+        # Save properly to a new buffer
         wav_buffer = BytesIO()
         sf.write(wav_buffer, audio, sr, format='WAV')
         wav_buffer.seek(0)
