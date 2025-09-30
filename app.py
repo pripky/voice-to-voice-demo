@@ -21,9 +21,6 @@ st.info("Click the microphone, speak, then click stop. The transcript and respon
 
 wav_audio_data = st_audiorec()
 
-if wav_buffer.getbuffer().nbytes == 0:
-    st.error("Audio buffer is empty!")
-
 if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
@@ -37,6 +34,10 @@ if wav_audio_data is not None:
         wav_buffer = BytesIO()
         sf.write(wav_buffer, audio, sr, format="WAV", subtype="PCM_16")
         wav_buffer.seek(0)
+
+        
+        if wav_buffer.getbuffer().nbytes == 0:
+            st.error("Audio buffer is empty!")
 
         # Whisper transcription
         translation = openai_client.audio.translations.create(
