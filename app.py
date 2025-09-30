@@ -54,7 +54,10 @@ if wav_audio_data is not None:
             top_p=1,
             stream=False
         )
-        st.write(completion)
+        
+        patient_response = completion.choices[0].message.content
+        st.write("Patient says:", patient_response)
+
 
         #Text to speech
         tts = gTTS(text=patient_response, lang='en')
