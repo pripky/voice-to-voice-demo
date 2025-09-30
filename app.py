@@ -31,9 +31,9 @@ if wav_audio_data is not None:
             audio = np.mean(audio, axis=1)
         audio_int16 = (audio * 32767).astype(np.int16)
 
-            wav_buffer = BytesIO()
-            wavfile.write(wav_buffer, sr, audio_int16)
-            wav_buffer.seek(0)
+        wav_buffer = BytesIO()
+        wavfile.write(wav_buffer, sr, audio_int16)
+        wav_buffer.seek(0)
         
         if wav_buffer.getbuffer().nbytes == 0:
             st.error("Audio buffer is empty!")
