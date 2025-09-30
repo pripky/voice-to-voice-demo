@@ -18,7 +18,7 @@ groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 st.title("Live Voice-to-Voice Demo")
 
-st.info("Click the microphone, speak, then click stop. The transcript and response will appear immediately.")
+st.info("Click the microphone, speak, then click stop. The transcript and response will appear in sometime.")
 
 wav_audio_data = st_audiorec()
 
