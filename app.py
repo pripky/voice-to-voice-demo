@@ -90,7 +90,7 @@ if 'latest_text' in st.session_state:
     st.write("Patient says:", st.session_state['latest_text'])
 
 if 'latest_audio' in st.session_state:
-    st.audio(BytesIO(st.session_state['latest_audio']), format='audio/wav')
+    st.audio(BytesIO(st.session_state['latest_audio']), format='audio/mp3')
 
 try:
 
