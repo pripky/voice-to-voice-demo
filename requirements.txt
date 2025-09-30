@@ -6,6 +6,3 @@ gtts
 soundfile
 av
 numpy
-pydub
-
-
