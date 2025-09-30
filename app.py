@@ -15,34 +15,44 @@ openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 from groq import Groq
 groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
-import queue
-
-tts_queue = queue.Queue()
-
 st.title("Live Voice-to-Voice Demo")
 
-class VoiceProcessor(AudioProcessorBase):
-    def recv(self, frame: av.AudioFrame) -> av.AudioFrame:
-        # Convert audio frame to numpy array
-        audio_data = frame.to_ndarray()
-        wav_buffer = BytesIO()
-        sf.write(wav_buffer, audio_data.T, 44100, format='WAV')
-        wav_buffer.seek(0)
+st.info("Speak into the microphone and press the red STOP button when done, then click 'Process Audio'.")
 
-        # Whisper transcription
-        try:
+class VoiceProcessor(AudioProcessorBase):
+    def __init__(self):
+        self.audio_frames = []
+
+    def recv(self, frame: av.AudioFrame) -> av.AudioFrame:
+        self.audio_frames.append(frame)
+        return frame
+
+ctx = webrtc_streamer(
+    key="voice-demo",
+    mode=WebRtcMode.SENDRECV,
+    audio_processor_factory=VoiceProcessor,
+    media_stream_constraints={"audio": True, "video": False},
+)
+
+if ctx.audio_processor:
+    if st.button("Process Audio"):
+        # Combine frames into WAV
+        audio_frames = ctx.audio_processor.audio_frames
+        if audio_frames:
+            audio_data = np.hstack([f.to_ndarray().T for f in audio_frames])
+            wav_buffer = BytesIO()
+            sf.write(wav_buffer, audio_data, 44100, format='WAV')
+            wav_buffer.seek(0)
+
+            # Whisper transcription
             translation = openai_client.audio.translations.create(
                 model="whisper-1",
                 file=wav_buffer
             )
             user_text = translation.text
-        except Exception:
-            user_text = ""
+            st.write("You said:", user_text)
 
-        st.session_state["user_text"] = user_text
-
-        # Groq response
-        try:
+            # Groq response
             completion = groq_client.chat.completions.create(
                 model="meta-llama/llama-4-maverick-17b-128e-instruct",
                 messages=[
@@ -55,38 +65,14 @@ class VoiceProcessor(AudioProcessorBase):
                 stream=False
             )
             patient_response = completion.choices[0].message['content']
-        except Exception:
-            patient_response = "Error processing input."
+            st.write("Patient says:", patient_response)
 
-        st.session_state["patient_text"] = patient_response
+            # TTS
+            tts = gTTS(text=patient_response, lang='en')
+            tts_buffer = BytesIO()
+            tts.write_to_fp(tts_buffer)
+            tts_buffer.seek(0)
+            st.audio(tts_buffer, format='audio/mp3')
 
-        # Convert patient response to TTS
-        tts = gTTS(text=patient_response, lang='en')
-        tts_buffer = BytesIO()
-        tts.write_to_fp(tts_buffer)
-        tts_buffer.seek(0)
-        tts_queue.put(tts_buffer.getvalue())
-
-        return frame
-
-ctx = webrtc_streamer(
-    key="voice-demo",
-    mode=WebRtcMode.SENDRECV,
-    audio_processor_factory=VoiceProcessor,
-    media_stream_constraints={"audio": True, "video": False},
-)
-
-if "user_text" in st.session_state:
-    st.write("You said:", st.session_state["user_text"])
-
-if "patient_text" in st.session_state:
-    st.write("Patient says:", st.session_state["patient_text"])
-
-try:
-    while not tts_queue.empty():
-        audio_bytes = tts_queue.get_nowait()
-        st.audio(BytesIO(audio_bytes), format="audio/mp3")
-except Exception:
-    pass
 
 
