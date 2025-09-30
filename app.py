@@ -19,16 +19,19 @@ st.title("Live Voice-to-Voice Demo")
 
 st.info("Click the microphone, speak, then click stop. The transcript and response will appear immediately.")
 
-wav_audio_data = st_audiorec()
+audio_data = np.hstack([f.to_ndarray().T for f in audio_frames])
 
-if wav_audio_data is not None:
+wav_buffer = BytesIO()
+sf.write(wav_buffer, audio_data, samplerate=44100, format='WAV')
+wav_buffer.seek(0)
+
+if wav_buffer.getbuffer().nbytes > 0:
     st.success("Audio recorded!")
 
     #Whisper transcription
-    audio_bytes_io = BytesIO(wav_audio_data)
     translation = openai_client.audio.translations.create(
         model="whisper-1",
-        file=audio_bytes_io
+        file=wav_buffer
     )
     user_text = translation.text
     st.write("You said:", user_text)
