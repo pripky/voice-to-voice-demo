@@ -24,7 +24,11 @@ wav_audio_data = st_audiorec()
 if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
-        wav_buffer = BytesIO(wav_audio_data)
+        audio, sr = sf.read(BytesIO(wav_audio_data))
+        if audio.ndim > 1:
+            audio = np.mean(audio, axis=1)
+        wav_buffer = BytesIO()
+        sf.write(wav_buffer, audio, sr, format="WAV", subtype="PCM_16")
         wav_buffer.seek(0)
 
         # Whisper transcription
