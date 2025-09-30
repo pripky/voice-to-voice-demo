@@ -74,6 +74,9 @@ def audio_callback(frame: av.AudioFrame) -> av.AudioFrame:
     tts.write_to_fp(tts_buffer)
     tts_buffer.seek(0)
 
+    st.write("Patient says:", patient_response)
+    st.audio(tts_buffer, format='audio/wav')
+
     tts_queue.put(tts_buffer.getvalue())
 
     return frame #placeholder
