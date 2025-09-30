@@ -101,31 +101,3 @@ try:
 except Exception:
 
     pass
-
-'''
-import pyttsx3
-
-# Initialize the text-to-speech engine
-engine = pyttsx3.init()
-
-#Let the engine choose the first available voice
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
-
-# The text you want to convert
-my_text = patient_response
-
-# Tell the engine what to say
-engine.say(my_text)
-
-# You can adjust the speaking rate (words per minute)
-engine.setProperty('rate', 150)
-
-# Run the engine to speak the text
-engine.runAndWait()
-
-# Note: pyttsx3 does not have a native save-to-file function for all platforms.
-# You can use the save_to_file method to save it.
-engine.save_to_file(my_text, 'patient_response.wav')
-# engine.runAndWait()
-'''
