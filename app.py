@@ -8,6 +8,7 @@ import av
 import soundfile as sf
 import numpy as np
 from st_audiorec import st_audiorec
+from scipy.io import wavfile
 
 from openai import OpenAI
 openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -28,13 +29,11 @@ if wav_audio_data is not None:
 
         if audio.ndim > 1:
             audio = np.mean(audio, axis=1)
-        if audio.dtype != np.int16:
-            audio = (audio * 32767).astype(np.int16)
+        audio_int16 = (audio * 32767).astype(np.int16)
 
-        wav_buffer = BytesIO()
-        sf.write(wav_buffer, audio, sr, format="WAV", subtype="PCM_16")
-        wav_buffer.seek(0)
-
+            wav_buffer = BytesIO()
+            wavfile.write(wav_buffer, sr, audio_int16)
+            wav_buffer.seek(0)
         
         if wav_buffer.getbuffer().nbytes == 0:
             st.error("Audio buffer is empty!")
