@@ -26,13 +26,15 @@ wav_audio_data = st_audiorec()
 if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
-        audio_segment = AudioSegment.from_file(BytesIO(wav_audio_data), format="wav")
-        audio_segment = audio_segment.set_channels(1)       # Mono
-        audio_segment = audio_segment.set_frame_rate(16000) # 16 kHz (optional)
-        audio_segment = audio_segment.set_sample_width(2)   # 16-bit PCM
+        audio, sr = sf.read(BytesIO(wav_audio_data))
+
+        if audio.ndim > 1:
+            audio = np.mean(audio, axis=1)
+        if audio.dtype != np.int16:
+            audio = (audio * 32767).astype(np.int16)
 
         wav_buffer = BytesIO()
-        audio_segment.export(wav_buffer, format="wav")
+        sf.write(wav_buffer, audio, sr, format="WAV", subtype="PCM_16")
         wav_buffer.seek(0)
 
         # Whisper transcription
