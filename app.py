@@ -24,15 +24,7 @@ wav_audio_data = st_audiorec()
 if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
-        audio, sr = sf.read(BytesIO(wav_audio_data))
-    
-        # Convert to mono if stereo
-        if audio.ndim > 1:
-            audio = np.mean(audio, axis=1)
-    
-        # Save properly to a new buffer
-        wav_buffer = BytesIO()
-        sf.write(wav_buffer, audio, sr, format='WAV', subtype='PCM_16')
+        wav_buffer = BytesIO(wav_audio_data)
         wav_buffer.seek(0)
 
         # Whisper transcription
@@ -48,7 +40,7 @@ if wav_audio_data is not None:
             model="meta-llama/llama-4-maverick-17b-128e-instruct",
             messages=[
                 {"role": "system", "content": "You are Kaps Xavier, a 24-year-old graduate student in computer science. You are not a chatbot — you are a real human being roleplaying as a therapy patient. Stay in character, respond as a real person would."},
-                {"role": "user", "content": [{"type": "text", "text": user_text}]}
+                {"role": "user", "content": user_text}
             ],
             temperature=0.7,
             max_completion_tokens=1024,
