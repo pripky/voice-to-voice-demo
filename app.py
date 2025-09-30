@@ -54,7 +54,7 @@ if wav_audio_data is not None:
             top_p=1,
             stream=False
         )
-        patient_response = completion.choices[0].message['content']
+        patient_response = completion.choices[0].content
         st.write("Patient says:", patient_response)
 
         #Text to speech
