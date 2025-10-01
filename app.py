@@ -30,6 +30,7 @@ if wav_audio_data is not None:
             tmp_wav.write(wav_audio_data)
             tmp_wav.flush()
 
+            audio = gTTS(text="dummy", lang="en") 
 
             # Send to Whisper
             with open(tmp_wav.name, "rb") as f:
