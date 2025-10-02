@@ -26,6 +26,20 @@ if wav_audio_data is not None:
     
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
+        # Wrap bytes in memory buffer
+        in_buf = BytesIO(wav_audio_data)
+        in_buf.name = "recording.wav"  # whisper uses the name to infer format
+        in_buf.seek(0)
+
+        # Transcribe with Whisper
+        translation = openai_client.audio.translations.create(
+            model="whisper-1",
+            file=in_buf
+        )
+        user_text = translation.text
+        st.write("You said:", user_text)
+        
+        '''
             # Save WAV to temporary file
         with tempfile.NamedTemporaryFile(suffix=".wav") as tmp_wav:
             tmp_wav.write(wav_audio_data)
@@ -39,6 +53,7 @@ if wav_audio_data is not None:
                 )
             user_text = translation.text
             st.write("You said:", user_text)
+            '''
 
         #Groq response
         completion = groq_client.chat.completions.create(
