@@ -22,6 +22,10 @@ st.info("Click the microphone, speak, then click stop. The transcript and respon
 
 wav_audio_data = st_audiorec()
 
+print(type(wav_audio_data))    # should be bytes
+print(len(wav_audio_data))     # size in bytes
+print(wav_audio_data[:64])     # first few bytes (optional, just to see header)
+
 if wav_audio_data is not None:
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
