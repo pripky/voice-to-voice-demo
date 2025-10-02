@@ -24,10 +24,6 @@ wav_audio_data = st_audiorec()
 
 if wav_audio_data is not None:
     
-    st.write(type(wav_audio_data))    # should be bytes
-    st.write(len(wav_audio_data))     # size in bytes
-    st.write(wav_audio_data[:64])     # first few bytes (optional, just to see header)
-    
     st.success("Audio recorded!")
     with st.spinner("Processing audio and generating response..."):
             # Save WAV to temporary file
