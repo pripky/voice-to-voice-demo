@@ -3,8 +3,3 @@ streamlit-audiorec
 openai
 groq
 gtts
-soundfile
-av
-numpy
-pydub
-
